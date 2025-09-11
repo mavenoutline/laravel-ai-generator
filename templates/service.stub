@@ -3,32 +3,69 @@
 namespace App\Services;
 
 use App\Models\{{ClassName}};
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class {{ClassName}}Service
 {
-    public function paginate()
+    public function paginate(array $opts = [])
     {
-        return {{ClassName}}::paginate();
+        $perPage = $opts['per_page'] ?? ($opts['perPage'] ?? 15);
+        $filters = $opts['filters'] ?? ($opts['filter'] ?? []);
+
+        $query = {{ClassName}}::query();
+
+        // apply simple where filters for allowed fields
+        foreach ($filters as $k => $v) {
+            if ($v === null || $v === '') continue;
+            $query->where($k, $v);
+        }
+
+        return $query->paginate($perPage);
     }
 
-    public function find($id)
+    public function find(int $id)
     {
         return {{ClassName}}::findOrFail($id);
     }
 
     public function create(array $data)
     {
-        return {{ClassName}}::create($data);
+        return DB::transaction(function() use ($data) {
+            // handle file uploads
+            foreach ({{file_columns_array}} as $fileCol) {
+                if (isset($data[$fileCol]) && $data[$fileCol] instanceof UploadedFile) {
+                    $path = $data[$fileCol]->store('uploads');
+                    $data[$fileCol] = $path;
+                }
+            }
+            return {{ClassName}}::create($data);
+        });
     }
 
-    public function update($id, array $data)
+    public function update(int $id, array $data)
     {
-        $m = {{ClassName}}::findOrFail($id);
-        $m->update($data);
-        return $m;
+        return DB::transaction(function() use ($id, $data) {
+            $m = {{ClassName}}::findOrFail($id);
+            // handle file uploads
+            foreach ({{file_columns_array}} as $fileCol) {
+                if (isset($data[$fileCol]) && $data[$fileCol] instanceof UploadedFile) {
+                    // delete old file if exists
+                    if ($m->{$fileCol}) {
+                        Storage::delete($m->{$fileCol});
+                    }
+                    $path = $data[$fileCol]->store('uploads');
+                    $data[$fileCol] = $path;
+                }
+            }
+            $m->update($data);
+            return $m;
+        });
     }
 
-    public function delete($id)
+    public function delete(int $id)
     {
         return (bool) {{ClassName}}::destroy($id);
     }

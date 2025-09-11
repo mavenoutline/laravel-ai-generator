@@ -37,9 +37,9 @@ php artisan vendor:publish --provider="MavenOutline\AiGenerator\AiGeneratorServi
 
 4. Configure `.env`:
 ```
-OLLAMA_API=http://localhost:11434
-AI_PROVIDER=ollama
-AI_MODEL=codellama:latest
+AI_GENERATOR_PROVIDER=ollama
+AI_GENERATOR_BASE_URL=http://localhost:11434/api/generate
+AI_GENERATOR_MODEL=codellama:latest
 ```
 
 5. Run generation:

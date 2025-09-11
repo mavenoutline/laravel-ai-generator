@@ -1,5 +1,4 @@
 <?php
-
 namespace MavenOutline\AiGenerator\Services;
 
 use Illuminate\Support\Facades\DB;
@@ -26,7 +25,7 @@ class SchemaInspector
         }
     }
 
-    public function resolveDatabaseName(): string|null
+    public function resolveDatabaseName(): ?string
     {
         $defaultConn = config('database.default');
         if ($defaultConn && config("database.connections.{$defaultConn}.database")) {

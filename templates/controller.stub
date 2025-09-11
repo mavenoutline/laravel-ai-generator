@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\{{ClassName}}Resource;
 use App\Services\{{ClassName}}Service;
 use App\Http\Requests\{{ClassName}}Request;
+use Illuminate\Http\Request;
 
 class {{ClassName}}Controller extends Controller
 {
@@ -16,24 +17,31 @@ class {{ClassName}}Controller extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return {{ClassName}}Resource::collection($this->service->paginate());
+        $filters = $request->only({{filterable_array}});
+        $perPage = (int) $request->get('per_page', 15);
+        $result = $this->service->paginate(['per_page' => $perPage, 'filters' => $filters]);
+
+        return {{ClassName}}Resource::collection($result);
     }
 
     public function store({{ClassName}}Request $request)
     {
-        return new {{ClassName}}Resource($this->service->create($request->validated()));
+        $model = $this->service->create($request->validated());
+        return (new {{ClassName}}Resource($model))->response()->setStatusCode(201);
     }
 
     public function show($id)
     {
-        return new {{ClassName}}Resource($this->service->find($id));
+        $model = $this->service->find($id);
+        return new {{ClassName}}Resource($model);
     }
 
     public function update({{ClassName}}Request $request, $id)
     {
-        return new {{ClassName}}Resource($this->service->update($id, $request->validated()));
+        $model = $this->service->update($id, $request->validated());
+        return new {{ClassName}}Resource($model);
     }
 
     public function destroy($id)

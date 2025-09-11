@@ -1,5 +1,4 @@
 <?php
-
 namespace MavenOutline\AiGenerator\Drivers;
 
 use GuzzleHttp\Client;
@@ -13,37 +12,33 @@ class OllamaDriver implements AiDriverContract
     protected string $model;
     protected ?LoggerInterface $logger;
 
-    public function __construct(string $endpoint = null, string $model = null, LoggerInterface $logger = null)
-    {
-        $this->endpoint = $endpoint ?? config('ai-generator.base_url', 'http://localhost:11434/api/generate');
-        $this->model = $model ?? config('ai-generator.model', 'codellama:latest');
-        $this->logger = $logger;
-        $this->client = new Client(['base_uri' => $this->endpoint, 'timeout' => 120]);
+    
+public function __construct(string $endpoint = null, string $model = null, LoggerInterface $logger = null)
+{
+    // Ensure non-null strings for endpoint and model.
+    $configured = config('ai-generator.base_url', 'http://localhost:11434/api/generate');
+    $this->endpoint = $endpoint ?: (is_string($configured) ? $configured : 'http://localhost:11434/api/generate');
+    $this->model = $model ?: (string) config('ai-generator.model', 'codellama:latest');
+    $this->logger = $logger;
+    // Initialize Guzzle client without base_uri if endpoint is empty; prefer to set base_uri if valid URL.
+    $clientOptions = ['timeout' => 120];
+    if (!empty($this->endpoint)) {
+        $clientOptions['base_uri'] = $this->endpoint;
     }
+    $this->client = new Client($clientOptions);
+}
+
 
     public function generate(string $prompt): string
     {
         try {
-            $payload = [
-                'model' => $this->model,
-                'prompt' => $prompt,
-                'stream' => false
-            ];
-
-            $resp = $this->client->post('', ['json' => $payload, 'headers' => ['Accept' => 'application/json']]);
+            $resp = $this->client->post('', ['json' => ['model' => $this->model, 'prompt' => $prompt, 'stream' => false]]);
             $body = (string) $resp->getBody();
             $data = json_decode($body, true);
-            if (isset($data['response'])) {
-                return (string) $data['response'];
-            }
-            if (isset($data['generated'])) {
-                return (string) $data['generated'];
-            }
+            if (isset($data['response'])) return $data['response'];
             return $body;
         } catch (\Throwable $e) {
-            if ($this->logger) {
-                $this->logger->error('OllamaDriver error: ' . $e->getMessage());
-            }
+            if ($this->logger) $this->logger->error('OllamaDriver: '.$e->getMessage());
             return '';
         }
     }
