@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\{{ClassName}};
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Arr;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,13 +13,18 @@ class {{ClassName}}Service
     {
         $perPage = $opts['per_page'] ?? ($opts['perPage'] ?? 15);
         $filters = $opts['filters'] ?? ($opts['filter'] ?? []);
+        $sort = $opts['sort'] ?? null;
+        $direction = $opts['direction'] ?? 'asc';
 
         $query = {{ClassName}}::query();
 
-        // apply simple where filters for allowed fields
         foreach ($filters as $k => $v) {
             if ($v === null || $v === '') continue;
             $query->where($k, $v);
+        }
+
+        if ($sort) {
+            $query->orderBy($sort, $direction);
         }
 
         return $query->paginate($perPage);
@@ -34,7 +38,6 @@ class {{ClassName}}Service
     public function create(array $data)
     {
         return DB::transaction(function() use ($data) {
-            // handle file uploads
             foreach ({{file_columns_array}} as $fileCol) {
                 if (isset($data[$fileCol]) && $data[$fileCol] instanceof UploadedFile) {
                     $path = $data[$fileCol]->store('uploads');
@@ -49,10 +52,8 @@ class {{ClassName}}Service
     {
         return DB::transaction(function() use ($id, $data) {
             $m = {{ClassName}}::findOrFail($id);
-            // handle file uploads
             foreach ({{file_columns_array}} as $fileCol) {
                 if (isset($data[$fileCol]) && $data[$fileCol] instanceof UploadedFile) {
-                    // delete old file if exists
                     if ($m->{$fileCol}) {
                         Storage::delete($m->{$fileCol});
                     }

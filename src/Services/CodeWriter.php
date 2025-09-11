@@ -1,4 +1,5 @@
 <?php
+
 namespace MavenOutline\AiGenerator\Services;
 
 class CodeWriter

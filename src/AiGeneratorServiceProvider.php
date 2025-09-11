@@ -3,10 +3,13 @@
 namespace MavenOutline\AiGenerator;
 
 use Illuminate\Support\ServiceProvider;
+use MavenOutline\AiGenerator\Services\GeneratorService;
+use MavenOutline\AiGenerator\Services\PromptBuilder;
+use MavenOutline\AiGenerator\Services\SchemaInspector;
+use MavenOutline\AiGenerator\Services\CodeWriter;
 use MavenOutline\AiGenerator\Drivers\OllamaDriver;
 use MavenOutline\AiGenerator\Drivers\StubDriver;
 use MavenOutline\AiGenerator\Contracts\AiDriverContract;
-use MavenOutline\AiGenerator\Commands\GenerateApiCommand;
 
 class AiGeneratorServiceProvider extends ServiceProvider
 {
@@ -15,24 +18,32 @@ class AiGeneratorServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../../../../config/ai-generator.php', 'ai-generator');
 
         $this->app->singleton(AiDriverContract::class, function ($app) {
-            $provider = config('ai-generator.provider', 'ollama');
+            $provider = config('ai-generator.provider', 'stub');
             if ($provider === 'ollama') {
                 return new OllamaDriver(config('ai-generator.base_url'), config('ai-generator.model'), $app->make('Psr\\Log\\LoggerInterface'));
             }
             return new StubDriver();
         });
 
-        $this->app->singleton('mavenoutline.ai.promptbuilder', function ($app) {
-            return new \MavenOutline\AiGenerator\Services\PromptBuilder();
+        $this->app->singleton(PromptBuilder::class, function () {
+            return new PromptBuilder();
         });
-        $this->app->singleton('mavenoutline.ai.schema', function ($app) {
-            return new \MavenOutline\AiGenerator\Services\SchemaInspector();
+        $this->app->singleton(SchemaInspector::class, function () {
+            return new SchemaInspector();
         });
-        $this->app->singleton('mavenoutline.ai.codewriter', function ($app) {
-            return new \MavenOutline\AiGenerator\Services\CodeWriter();
+        $this->app->singleton(CodeWriter::class, function () {
+            return new CodeWriter();
+        });
+        $this->app->singleton(GeneratorService::class, function ($app) {
+            return new GeneratorService($app->make(AiDriverContract::class), $app->make(PromptBuilder::class), $app->make(SchemaInspector::class), $app->make(CodeWriter::class));
         });
 
-        $this->commands([GenerateApiCommand::class]);
+        // register command only in Laravel/Lumen consoles
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \MavenOutline\AiGenerator\Commands\GenerateApiCommand::class,
+            ]);
+        }
     }
 
     public function boot()

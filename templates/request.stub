@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Str;
 
 class {{ClassName}}Request extends FormRequest
 {
@@ -15,13 +14,6 @@ class {{ClassName}}Request extends FormRequest
 
     public function rules(): array
     {
-        // route param for the resource, e.g. 'user' for users table
-        $routeParam = '{{route_param}}';
-        $id = $this->route($routeParam);
-        if (is_object($id) && method_exists($id, 'getKey')) {
-            $id = $id->getKey();
-        }
-
         return [
             {{validation_rules}}
         ];

@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class {{ClassName}}Controller extends Controller
 {
-    protected $service;
+    protected {{ClassName}}Service $service;
 
     public function __construct({{ClassName}}Service $service)
     {
@@ -21,7 +21,10 @@ class {{ClassName}}Controller extends Controller
     {
         $filters = $request->only({{filterable_array}});
         $perPage = (int) $request->get('per_page', 15);
-        $result = $this->service->paginate(['per_page' => $perPage, 'filters' => $filters]);
+        $sort = $request->get('sort');
+        $direction = $request->get('direction', 'asc');
+
+        $result = $this->service->paginate(['per_page' => $perPage, 'filters' => $filters, 'sort' => $sort, 'direction' => $direction]);
 
         return {{ClassName}}Resource::collection($result);
     }
