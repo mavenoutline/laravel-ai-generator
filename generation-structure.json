@@ -1,0 +1,10 @@
+{
+  "artifacts": [
+    {"type": "model"},
+    {"type": "request"},
+    {"type": "resource"},
+    {"type": "service"},
+    {"type": "controller"}
+  ],
+  "routes_file": "routes/api.php"
+}

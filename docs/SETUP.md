@@ -1,0 +1,1 @@
+See README for high level notes. For Ollama installation visit https://ollama.com/docs or GPT4All docs.
