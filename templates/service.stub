@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\{{ClassName}};
+
+class {{ClassName}}Service
+{
+    public function paginate()
+    {
+        return {{ClassName}}::paginate();
+    }
+
+    public function find($id)
+    {
+        return {{ClassName}}::findOrFail($id);
+    }
+
+    public function create(array $data)
+    {
+        return {{ClassName}}::create($data);
+    }
+
+    public function update($id, array $data)
+    {
+        $m = {{ClassName}}::findOrFail($id);
+        $m->update($data);
+        return $m;
+    }
+
+    public function delete($id)
+    {
+        return (bool) {{ClassName}}::destroy($id);
+    }
+}

@@ -1,3 +1,11 @@
 <?php
 
-class {{ClassName}} {}
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class {{ClassName}} extends Model
+{
+    protected $table = '{{table}}';
+    protected $fillable = [{{fillable}}];
+}

@@ -4,7 +4,9 @@ namespace MavenOutline\AiGenerator;
 
 use Illuminate\Support\ServiceProvider;
 use MavenOutline\AiGenerator\Commands\GenerateApiCommand;
-use MavenOutline\AiGenerator\Services\AiClient;
+use MavenOutline\AiGenerator\Drivers\OllamaDriver;
+use MavenOutline\AiGenerator\Drivers\StubDriver;
+use MavenOutline\AiGenerator\Contracts\AiDriverContract;
 
 class AiGeneratorServiceProvider extends ServiceProvider
 {
@@ -12,8 +14,24 @@ class AiGeneratorServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../../../../config/ai-generator.php', 'ai-generator');
 
-        $this->app->bind('MavenOutline\\AiGenerator\\Services\\AiClient', function ($app) {
-            return new AiClient(config('ai-generator.ollama_api'), config('ai-generator.model'), config('ai-generator.provider'));
+        $this->app->singleton(AiDriverContract::class, function ($app) {
+            $provider = config('ai-generator.provider', 'ollama');
+            if ($provider === 'ollama') {
+                return new OllamaDriver(config('ai-generator.base_url'), config('ai-generator.model'), $app->make('Psr\Log\LoggerInterface'));
+            }
+            return new StubDriver(config('ai-generator.templates_path'));
+        });
+
+        $this->app->singleton('mavenoutline.ai.promptbuilder', function ($app) {
+            return new \MavenOutline\AiGenerator\Services\PromptBuilder();
+        });
+
+        $this->app->singleton('mavenoutline.ai.schema', function ($app) {
+            return new \MavenOutline\AiGenerator\Services\SchemaInspector();
+        });
+
+        $this->app->singleton('mavenoutline.ai.codewriter', function ($app) {
+            return new \MavenOutline\AiGenerator\Services\CodeWriter();
         });
 
         $this->commands([
@@ -23,7 +41,6 @@ class AiGeneratorServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        // Publish config and templates
         if (method_exists($this, 'publishes')) {
             $this->publishes([
                 __DIR__ . '/../../config/ai-generator.php' => config_path('ai-generator.php'),

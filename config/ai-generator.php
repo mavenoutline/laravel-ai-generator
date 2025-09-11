@@ -1,13 +1,19 @@
 <?php
+
 return [
-    'provider' => env('AI_PROVIDER', 'ollama'), // 'ollama' or 'template'
-    'model' => env('AI_MODEL', 'codellama:latest'),
-    'ollama_api' => env('OLLAMA_API', 'http://localhost:11434'),
-    'templates_path' => base_path('vendor/mavenoutline/laravel-ai-generator/templates'),
-    'naming' => [
-        'model' => function ($table) {
-            return ucfirst(Str::singular($table));
-        },
+    'provider' => env('AI_GENERATOR_PROVIDER', 'ollama'),
+    'model' => env('AI_GENERATOR_MODEL', 'codellama:latest'),
+    'base_url' => env('AI_GENERATOR_BASE_URL', 'http://localhost:11434/api/generate'),
+    'enabled' => env('AI_GENERATOR_ENABLED', true),
+    'templates_path' => base_path('vendor/mavenoutline/lumen-ai-generator/templates'),
+    'routes_file' => 'routes/api.php',
+    'output_paths' => [
+        'model' => app_path('Models'),
+        'controller' => app_path('Http/Controllers/Api'),
+        'service' => app_path('Services'),
+        'request' => app_path('Http/Requests'),
+        'resource' => app_path('Http/Resources'),
     ],
-    'use_fallback_templates' => true,
+    'force_overwrite' => env('AI_GENERATOR_FORCE_OVERWRITE', false),
+    'debug' => env('AI_GENERATOR_DEBUG', false),
 ];
