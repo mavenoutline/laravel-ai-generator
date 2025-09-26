@@ -1,27 +1,3 @@
 <?php
 
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class {{ClassName}} extends Model
-{
-    use HasFactory;
-
-    protected $table = '{{table}}';
-
-    protected $fillable = [
-        {{fillable}}
-    ];
-
-    protected $hidden = [
-        {{hidden}}
-    ];
-
-    protected $casts = [
-        {{casts}}
-    ];
-
-{{relationships_methods}}
-}
+class {{ClassName}} {}

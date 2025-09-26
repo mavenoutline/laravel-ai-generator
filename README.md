@@ -22,7 +22,7 @@ A Lumen package that generates full CRUD APIs (Model, Controller, FormRequest, R
 
 1. Install package via composer (from path or packagist when published):
 ```bash
-composer require mavenoutline/laravel-ai-generator
+composer require mavenoutline/lumen-ai-generator
 ```
 
 2. Register the service provider in `bootstrap/app.php`:
@@ -37,9 +37,9 @@ php artisan vendor:publish --provider="MavenOutline\AiGenerator\AiGeneratorServi
 
 4. Configure `.env`:
 ```
-AI_GENERATOR_PROVIDER=ollama
-AI_GENERATOR_BASE_URL=http://localhost:11434/api/generate
-AI_GENERATOR_MODEL=codellama:latest
+OLLAMA_API=http://localhost:11434
+AI_PROVIDER=ollama
+AI_MODEL=codellama:latest
 ```
 
 5. Run generation:
