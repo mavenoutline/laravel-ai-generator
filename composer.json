@@ -1,8 +1,16 @@
 {
   "name": "mavenoutline/laravel-ai-generator",
   "description": "A Lumen/Laravel package that generates API resources (models, controllers, requests, resources, services, routes) using a local AI model like Ollama/CodeLlama with safe template fallbacks.",
+  "version": "v0.0.1",
   "type": "library",
   "license": "MIT",
+  "keywords": [
+      "laravel","ai","ai generator",
+      "laravel ai generator","laravel ai builder",
+      "controller creator","ai generator","generators","generator",
+      "ai generator", "laravel ai","laravel ai generator",
+      "laravel-ai-generator","ai-generator"
+  ],
   "require": {
     "php": ">=8.1",
     "guzzlehttp/guzzle": "^7.0",
@@ -19,13 +27,5 @@
         "MavenOutline\\AiGenerator\\AiGeneratorServiceProvider"
       ]
     }
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/mavenoutline/laravel-ai-generator.git"
-    }
-  ]
+  }
 }
